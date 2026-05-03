@@ -25,10 +25,22 @@ public class MyCalendarView extends JFrame {
     private boolean            dataChanged = false;
     private boolean            isLoading   = false; 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private java.util.Date filterDate = null; 
 
     public MyCalendarView(AppointmentController ctrl) {
         this.ctrl = ctrl;
         setTitle("Lịch hẹn của tôi");
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setBounds(100,100,1000,600);
+        setLocationRelativeTo(null);
+        buildUI();
+        loadData();
+    }
+
+    public MyCalendarView(AppointmentController ctrl, java.util.Date date) {
+        this.ctrl = ctrl;
+        this.filterDate = date;
+        setTitle("Lịch hẹn ngày " + new SimpleDateFormat("dd/MM/yyyy").format(date));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setBounds(100,100,1000,600);
         setLocationRelativeTo(null);
@@ -172,15 +184,20 @@ public class MyCalendarView extends JFrame {
     }
 
     private void loadData() {
-        isLoading = true; 
+        isLoading = true;
         tableModel.setRowCount(0);
         List<Appointment> list = ctrl.getAllAppointments();
         int stt=1;
         for(Appointment a : list) {
+            if (filterDate != null) {
+                String aDate = sdf.format(a.getMeetingDate());
+                String fDate = sdf.format(filterDate);
+                if (!aDate.equals(fDate)) continue;
+            }
             tableModel.addRow(new Object[]{stt++,a.getId(),a.getName(),a.getLocation(),
                 a.getMeetingDate(),a.getStartHour(),a.getEndHour(),a.getTypeAppointment()});
         }
-        isLoading = false;  
+        isLoading = false;
         dataChanged = false;
         if (btnSave != null) btnSave.setEnabled(false);
     }
