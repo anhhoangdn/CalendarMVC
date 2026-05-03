@@ -194,9 +194,13 @@ public class AddAppointmentView extends JFrame {
 
         btnReplace.addActionListener(e -> {
             d.dispose();
-            ctrl.replaceConflict(selectedDate, start, end, name, location);
-            showMsg("Đã thay thế lịch hẹn thành công!", "Thông báo");
-            openMyCalendarAndClose();
+            int result = ctrl.replaceConflict(selectedDate, start, end, name, location);
+            if (result > 0) {
+                showMsg("Đã thay thế lịch hẹn thành công!", "Thông báo");
+                openMyCalendarAndClose();
+            } else {
+                showMsg("Có lỗi khi thay thế lịch hẹn, vui lòng thử lại!", "Lỗi");
+            }
         });
 
         btnCancel.addActionListener(e -> {
