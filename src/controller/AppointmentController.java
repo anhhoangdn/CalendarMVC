@@ -26,12 +26,13 @@ public class AppointmentController {
     }
 
     public AddStatus checkBeforeAdd(String name, Date date, int start, int end) {
-        
-        if (dao.getUserOverlappingAppointment(currentUserId, date, start, end) != null)
-            return AddStatus.CONFLICT;
-        
+
         if (dao.getExistGroupAppointment(name, date, start, end) != null)
             return AddStatus.GROUP_MATCH;
+
+        if (dao.getUserOverlappingAppointment(currentUserId, date, start, end) != null)
+            return AddStatus.CONFLICT;
+
         return AddStatus.SUCCESS;
     }
 
