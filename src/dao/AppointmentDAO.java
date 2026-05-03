@@ -74,14 +74,38 @@ public class AppointmentDAO {
                                   String name, String location) {
         Appointment old = getUserExistAppointment(userId, date, start, end);
         if (old == null) return 0;
-        String sql = "UPDATE appointment SET name=?,location=?,start_hour=?,end_hour=? WHERE id=?";
-        try (Connection c = DBConnection.get(); PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, name);
-            ps.setString(2, location);
-            ps.setInt(3, start);
-            ps.setInt(4, end);
-            ps.setInt(5, old.getId());
-            return ps.executeUpdate();
+        try (Connection c = DBConnection.get()) {
+            c.setAutoCommit(false);
+            try {
+                exec(c, "DELETE FROM take_rmd WHERE appointment_id=?", old.getId());
+                exec(c, "DELETE FROM take WHERE appointment_id=?", old.getId());
+                exec(c, "DELETE FROM appointment WHERE id=?", old.getId());
+
+                String insertSql = "INSERT INTO appointment(name,location,meeting_date,start_hour,end_hour,type_appointment) " +
+                                   "VALUES(?,?,?,?,?,?)";
+                try (PreparedStatement ps = c.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setString(1, name);
+                    ps.setString(2, location);
+                    ps.setDate(3, new java.sql.Date(date.getTime()));
+                    ps.setInt(4, start);
+                    ps.setInt(5, end);
+                    ps.setString(6, old.getTypeAppointment());
+                    ps.executeUpdate();
+                    ResultSet keys = ps.getGeneratedKeys();
+                    if (keys.next()) {
+                        int newId = keys.getInt(1);
+                        linkUser(c, userId, newId);
+                        c.commit();
+                        return newId;
+                    }
+                }
+                c.rollback();
+                return 0;
+            } catch (SQLException e) {
+                c.rollback();
+                e.printStackTrace();
+                return 0;
+            }
         } catch (SQLException e) { e.printStackTrace(); return 0; }
     }
 
