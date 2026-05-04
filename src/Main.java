@@ -1,4 +1,5 @@
 import controller.AppointmentController;
+import util.ReminderScheduler;
 import view.CalendarUI;
 import javax.swing.*;
 
@@ -7,10 +8,10 @@ public class Main {
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
         catch (Exception ignored) {}
 
+        ReminderScheduler.start();
+
         SwingUtilities.invokeLater(() -> {
             AppointmentController ctrl = new AppointmentController();
-            // userId mặc định = 1 để tiện test, muốn đổi user thì gọi ctrl.setCurrentUserId(id) sau khi có id
-            // Muốn có màn hình chọn user thì thêm LoginView ở đây
             new CalendarUI(ctrl).setVisible(true);
         });
     }
