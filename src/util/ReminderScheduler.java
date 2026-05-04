@@ -60,7 +60,7 @@ public class ReminderScheduler {
                 int targetH = target.get(Calendar.HOUR_OF_DAY);
                 int targetM = target.get(Calendar.MINUTE);
 
-                String key = a.getId() + "-" + remId;
+                String key = a.getId() + "-" + remId + "-" + aDate;
 
                 if (today.equals(targetDate) && nowH == targetH && nowM == targetM && !fired.getOrDefault(key, false)) {
                     fired.put(key, true);
@@ -75,11 +75,6 @@ public class ReminderScheduler {
                         JOptionPane.showMessageDialog(null, msg, "Nhắc nhở lịch hẹn", JOptionPane.INFORMATION_MESSAGE)
                     );
                 }
-
-                Calendar midnight = Calendar.getInstance();
-                midnight.set(Calendar.HOUR_OF_DAY, 0);
-                midnight.set(Calendar.MINUTE, 0);
-                if (now.before(midnight)) fired.remove(key);
             }
         }
     }

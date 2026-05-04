@@ -189,6 +189,7 @@ public class MyCalendarView extends JFrame {
         List<Appointment> list = ctrl.getAllAppointments();
         int stt=1;
         for(Appointment a : list) {
+            if (a.getMeetingDate() == null) continue;
             if (filterDate != null) {
                 String aDate = sdf.format(a.getMeetingDate());
                 String fDate = sdf.format(filterDate);
