@@ -78,26 +78,7 @@ public class AppointmentDAO {
         try (Connection c = DBConnection.get()) {
             c.setAutoCommit(false);
             try {
-                try (PreparedStatement ps = c.prepareStatement(
-                        "DELETE FROM take WHERE user_id=? AND appointment_id=?")) {
-                    ps.setInt(1, userId);
-                    ps.setInt(2, old.getId());
-                    ps.executeUpdate();
-                }
-
-                boolean hasParticipants;
-                try (PreparedStatement ps = c.prepareStatement(
-                        "SELECT COUNT(*) FROM take WHERE appointment_id=?")) {
-                    ps.setInt(1, old.getId());
-                    ResultSet rs = ps.executeQuery();
-                    rs.next();
-                    hasParticipants = rs.getInt(1) > 0;
-                }
-
-                if (!hasParticipants) {
-                    exec(c, "DELETE FROM take_rmd WHERE appointment_id=?", old.getId());
-                    exec(c, "DELETE FROM appointment WHERE id=?", old.getId());
-                }
+                exec(c, "DELETE FROM appointment WHERE id=?", old.getId());
 
                 String insertSql = "INSERT INTO appointment(name,location,meeting_date,start_hour,end_hour,type_appointment) " +
                                    "VALUES(?,?,?,?,?,?)";
@@ -144,8 +125,6 @@ public class AppointmentDAO {
         try (Connection c = DBConnection.get()) {
             c.setAutoCommit(false);
             try {
-                exec(c, "DELETE FROM take_rmd WHERE appointment_id=?", appId);
-                exec(c, "DELETE FROM take WHERE appointment_id=?", appId);
                 exec(c, "DELETE FROM appointment WHERE id=?", appId);
                 c.commit(); return true;
             } catch (SQLException e) { c.rollback(); e.printStackTrace(); return false; }
